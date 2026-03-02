@@ -1,0 +1,29 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: ap-south-1
+    ECR_REPO: avs-frontend
+    ACCOUNT_ID: 408032760208
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging into ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t $ECR_REPO .
+      - docker tag $ECR_REPO:latest $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+
+  post_build:
+    commands:
+      - echo Pushing image...
+      - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+      - printf '[{"name":"frontend","imageUri":"%s"}]' $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
