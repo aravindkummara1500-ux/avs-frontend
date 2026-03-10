@@ -7,9 +7,10 @@ env:
     ACCOUNT_ID: 408032760208
 
 phases:
+
   pre_build:
     commands:
-      - echo Logging into ECR...
+      - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
   build:
@@ -20,10 +21,11 @@ phases:
 
   post_build:
     commands:
-      - echo Pushing image...
+      - echo Pushing Docker image...
       - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
       - printf '[{"name":"frontend","imageUri":"%s"}]' $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest > imagedefinitions.json
 
 artifacts:
   files:
     - imagedefinitions.json
+    - appspec.yaml
