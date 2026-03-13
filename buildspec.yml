@@ -2,9 +2,9 @@ version: 0.2
 
 env:
 variables:
-AWS_REGION: ap-south-1
-ECR_REPO: avs-frontend
-ACCOUNT_ID: 408032760208
+AWS_REGION: "ap-south-1"
+ECR_REPO: "avs-frontend"
+ACCOUNT_ID: "408032760208"
 
 phases:
 pre_build:
@@ -13,7 +13,7 @@ commands:
 - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 - COMMIT_ID=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
 - IMAGE_TAG=$COMMIT_ID
-- echo Image tag will be $IMAGE_TAG
+- echo Image tag is $IMAGE_TAG
 
 build:
 commands:
@@ -23,7 +23,7 @@ commands:
 
 post_build:
 commands:
-- echo Pushing image...
+- echo Pushing Docker image...
 - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
 - printf '[{"name":"frontend","imageUri":"%s"}]' $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG > imagedefinitions.json
 
